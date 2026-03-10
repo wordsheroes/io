@@ -16,21 +16,23 @@ body{
   padding:0;
 }
 
+/* الشاشات */
 .screen{
   display:none;
-  padding-top:6vh;
+  padding-top:8vh;
 }
 #startScreen{
   display:block;
 }
 h1,h2,h3{
   text-shadow: 2px 2px #333;
+  margin:0.5em 0;
 }
 
 /* الأزرار العامة */
 button{
-  padding: 2vw 4vw;
-  font-size: 4vw;
+  padding:2vw 4vw;
+  font-size:4vw;
   border:none;
   border-radius:12px;
   cursor:pointer;
@@ -39,17 +41,17 @@ button{
   transition: all 0.2s ease;
 }
 button:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 4px rgba(0,0,0,0.3);
+  transform: translateY(-0.5vw);
+  box-shadow: 0 1vw rgba(0,0,0,0.3);
 }
 button:active{
-  transform: translateY(1px);
-  box-shadow: 0 2px rgba(0,0,0,0.3);
+  transform: translateY(0.5vw);
+  box-shadow: 0 0.5vw rgba(0,0,0,0.3);
 }
 
 /* أزرار الحروف */
 #letters button{
-  font-size: 5vw;
+  font-size:5vw;
   background:#f1c40f;
   color:black;
   padding:3vw 4vw;
@@ -61,7 +63,7 @@ button:active{
   color:white;
 }
 
-/* أزرار المراحل */
+/* شبكة المراحل */
 #levels{
   display:grid;
   grid-template-columns:repeat(5,1fr);
@@ -149,7 +151,7 @@ button:active{
   border-radius:10px;
 }
 
-/* أزرار أعلى اليمين بالأيموجي */
+/* أزرار أعلى اليمين */
 #topButtons{
   position:absolute;
   top:2vw;
@@ -172,45 +174,18 @@ button:active{
   background: rgba(0,0,0,0.6);
 }
 
-/* Media Query لتكبير الأزرار على الهواتف الصغيرة */
+/* Media Query للشاشات الصغيرة */
 @media (max-width: 600px){
-  button{
-    font-size:6vw;
-    padding:4vw 6vw;
-  }
-  #letters button{
-    font-size:7vw;
-    padding:5vw 6vw;
-  }
-  .levelBtn{
-    font-size:5vw;
-    padding:4vw;
-  }
-  #topbar{
-    font-size:5vw;
-    padding:3vw 5vw;
-  }
-  #answer{
-    font-size:8vw;
-    padding:3vw;
-  }
-  #message{
-    font-size:6vw;
-  }
-  #hintBtn{
-    font-size:5vw;
-    padding:3vw 5vw;
-  }
-  #topButtons button{
-    font-size:6vw;
-    padding:3vw 4vw;
-  }
-  #waitScreen h2{
-    font-size:10vw;
-  }
-  #waitScreen p,#timer{
-    font-size:6vw;
-  }
+  button{ font-size:6vw; padding:3vw 5vw; }
+  #letters button{ font-size:7vw; padding:4vw 5vw; }
+  .levelBtn{ font-size:5vw; padding:4vw; }
+  #topbar{ font-size:5vw; padding:3vw 5vw; }
+  #answer{ font-size:8vw; padding:3vw; }
+  #message{ font-size:6vw; }
+  #hintBtn{ font-size:5vw; padding:3vw 5vw; }
+  #topButtons button{ font-size:6vw; padding:3vw 4vw; }
+  #waitScreen h2{ font-size:10vw; }
+  #waitScreen p,#timer{ font-size:6vw; }
 }
 </style>
 </head>
@@ -272,33 +247,23 @@ let hearts=3;
 let completed = JSON.parse(localStorage.getItem("completed")) || [0];
 let coins = parseInt(localStorage.getItem("coins")) || 100;
 
-function updateCoins(){
-  document.getElementById("coins").innerText = coins;
-}
-
-function show(screen){
-  document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
-  document.getElementById(screen).style.display="block";
-}
+function updateCoins(){ document.getElementById("coins").innerText = coins; }
+function show(screen){ document.querySelectorAll(".screen").forEach(s=>s.style.display="none"); document.getElementById(screen).style.display="block"; }
 
 function openLevels(){
   show("levelsScreen");
   let html="";
   for(let i=0;i<100;i++){
-    if(completed.includes(i)){
-      html+=`<button class="levelBtn completed" onclick="startLevel(${i})">${i+1}</button>`;
-    } else if(i === Math.max(...completed)+1){
-      html+=`<button class="levelBtn open" onclick="startLevel(${i})">${i+1}</button>`;
-    } else {
-      html+=`<button class="levelBtn lock">${i+1}</button>`;
-    }
+    if(completed.includes(i)){ html+=`<button class="levelBtn completed" onclick="startLevel(${i})">${i+1}</button>`; }
+    else if(i === Math.max(...completed)+1){ html+=`<button class="levelBtn open" onclick="startLevel(${i})">${i+1}</button>`; }
+    else{ html+=`<button class="levelBtn lock">${i+1}</button>`; }
   }
   document.getElementById("levels").innerHTML=html;
 }
 
 function startLevel(l){
   let maxOpen = Math.max(...completed)+1;
-  if(l>maxOpen) return;   
+  if(l>maxOpen) return;
   level=l;
   answer="";
   document.getElementById("answer").innerHTML="";
@@ -306,6 +271,7 @@ function startLevel(l){
   document.getElementById("level").innerHTML=l+1;
   document.getElementById("hearts").innerHTML=hearts;
   updateCoins();
+  show("gameScreen");
 
   let letters=words[level].split('').sort(()=>Math.random()-0.5);
   let html="";
@@ -316,14 +282,13 @@ function startLevel(l){
 function addLetter(l){
   answer+=l;
   document.getElementById("answer").innerHTML=answer;
-
   if(answer.length===words[level].length){
     if(answer===words[level]){
       document.getElementById("message").innerHTML="🎉 صحيح!";
       if(!completed.includes(level)) completed.push(level);
       localStorage.setItem("completed",JSON.stringify(completed));
-      coins += 10;
-      localStorage.setItem("coins", coins);
+      coins+=10;
+      localStorage.setItem("coins",coins);
       updateCoins();
       setTimeout(openLevels,1000);
     }else{
@@ -340,9 +305,9 @@ function addLetter(l){
 function reset(){ answer=""; document.getElementById("answer").innerHTML=""; }
 
 function useHint(){
-  if(coins < 20){ alert("ليس لديك ما يكفي من العملات للتلميح!"); return; }
-  coins -= 20;
-  localStorage.setItem("coins", coins);
+  if(coins<20){ alert("ليس لديك ما يكفي من العملات للتلميح!"); return; }
+  coins-=20;
+  localStorage.setItem("coins",coins);
   updateCoins();
   alert("التلميح: أول حرف من الكلمة هو '" + words[level][0] + "'");
 }
@@ -354,24 +319,15 @@ function showWait(){
   let timer=setInterval(()=>{
     time--;
     document.getElementById("timer").innerHTML=formatTime(time);
-    if(time<=0){
-      clearInterval(timer);
-      hearts=3;
-      openLevels();
-    }
+    if(time<=0){ clearInterval(timer); hearts=3; openLevels(); }
   },1000);
 }
 
-function formatTime(t){
-  let m=Math.floor(t/60);
-  let s=t%60;
-  return `${m}:${s<10?'0'+s:s}`;
-}
+function formatTime(t){ let m=Math.floor(t/60); let s=t%60; return `${m}:${s<10?'0'+s:s}`; }
 
 function watchAd(){ hearts=3; openLevels(); }
 
 updateCoins();
 </script>
-
 </body>
 </html>
